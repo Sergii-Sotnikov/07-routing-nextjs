@@ -1,3 +1,4 @@
+
 import axios from "axios";
 import type { Note, NewNote } from "@/types/note";
 
@@ -9,14 +10,15 @@ interface NoteHttpResponse {
 
 interface fetchNotesProps {
   page: number;
-  search?:string
+  search?:string;
+  tag?: string;
 }
 
 
 const myKey = process.env.NEXT_PUBLIC_NOTEHUB_TOKEN;
 
 
-export async function fetchNotes({page, search}:fetchNotesProps): Promise<NoteHttpResponse> {
+export async function fetchNotes({page, search, tag}:fetchNotesProps): Promise<NoteHttpResponse> {
   const url = `https://notehub-public.goit.study/api/notes`;
   const options = {
     headers: {
@@ -27,6 +29,7 @@ export async function fetchNotes({page, search}:fetchNotesProps): Promise<NoteHt
       page,
       perPage: 12,
       ...(search && { search}),
+      ...(tag && { tag }),
     }
   };
 

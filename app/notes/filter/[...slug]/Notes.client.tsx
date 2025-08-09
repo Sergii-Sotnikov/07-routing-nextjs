@@ -21,18 +21,20 @@ interface Props {
   };
   initialPage: number;
   initialSearch: string;
+  initialTag: string;
 }
 
-const NotesClients = ({ initialData, initialPage, initialSearch}: Props) => {
+const NotesClients = ({ initialData, initialPage, initialSearch, initialTag}: Props) => {
   const [page, setPage] = useState<number>(initialPage);
   const [search, setSearch] = useState<string>(initialSearch);
+  const [tag] = useState <string>(initialTag)
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
 
   const { data, isLoading, isError, isSuccess } = useQuery({
-    queryKey: ["notes", page, search],
+    queryKey: ["notes", page, search, tag],
     queryFn: () =>
-      fetchNotes(search.trim() === "" ? { page } : { page, search }),
+      fetchNotes(search.trim() === "" ? { page, tag } : { page, search, tag }),
     initialData: page === initialPage && search === initialSearch ? initialData : undefined,
     placeholderData: keepPreviousData,
     refetchOnMount: false,
