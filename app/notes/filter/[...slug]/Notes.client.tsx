@@ -2,7 +2,7 @@
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { fetchNotes } from "@/lib/api";
 import SearchBox from "@/components/SearchBox/SearchBox";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast, Toaster } from "react-hot-toast";
 import NoteList from "@/components/NoteList/NoteList";
 import Loader from "@/components/Loader/Loader";
@@ -12,7 +12,7 @@ import { useDebouncedCallback } from "use-debounce";
 import Modal from "@/components/Modal/Modal";
 import NoteForm from "@/components/NoteForm/NoteForm";
 import { Note } from "@/types/note";
-import css from "./NotePage.module.css"
+import css from "./NotePage.module.css";
 
 interface Props {
   initialData: {
@@ -24,18 +24,31 @@ interface Props {
   initialTag: string;
 }
 
-const NotesClients = ({ initialData, initialPage, initialSearch, initialTag}: Props) => {
+const NotesClients = ({initialData, initialPage, initialSearch, initialTag,}: Props) => {
+
+
   const [page, setPage] = useState<number>(initialPage);
   const [search, setSearch] = useState<string>(initialSearch);
-  const [tag] = useState <string>(initialTag)
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
+  const initialRef = useRef({
+    page: initialPage,
+    search: initialSearch,
+    tag: initialTag,
+  });
+
+  useEffect(() => {
+    setPage(1);
+  }, [initialTag]);
 
   const { data, isLoading, isError, isSuccess } = useQuery({
-    queryKey: ["notes", page, search, tag],
+    queryKey: ["notes", page, search, initialTag],
     queryFn: () =>
-      fetchNotes(search.trim() === "" ? { page, tag } : { page, search, tag }),
-    initialData: page === initialPage && search === initialSearch ? initialData : undefined,
+      fetchNotes(search.trim() === "" ? { page, tag: initialTag } : { page, search, tag:initialTag }),
+    initialData:
+      page === initialRef.current.page && search === initialRef.current.search && initialTag === initialRef.current.tag
+        ? initialData
+        : undefined,
     placeholderData: keepPreviousData,
     refetchOnMount: false,
   });
@@ -68,7 +81,7 @@ const NotesClients = ({ initialData, initialPage, initialSearch, initialTag}: Pr
     <div className={css.app}>
       <Toaster position="top-center" />
       <header className={css.toolbar}>
-        <SearchBox onSearch={debouncedSearch} />
+        <SearchBox value={search} onSearch={debouncedSearch} />
         {isSuccess && noteData.length > 0 && (
           <Pagination total={totalPages} onChange={setPage} page={page} />
         )}
