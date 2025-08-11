@@ -40,11 +40,7 @@ const NotesClients = ({
 
   const { data, isLoading, isError, isSuccess } = useQuery({
     queryKey: ["notes", debouncedQuery, page, tag],
-    queryFn: () => fetchNotes({
-      page,
-      search: debouncedQuery,
-      tag,
-    }),
+    queryFn: () => fetchNotes(page, debouncedQuery, tag),
     placeholderData: keepPreviousData,
     initialData,
     refetchOnMount: false,

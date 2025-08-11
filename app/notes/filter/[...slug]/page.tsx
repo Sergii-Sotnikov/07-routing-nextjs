@@ -12,11 +12,7 @@ export default async function Notes({params}:Props){
 
   const initialTag = slug[0] === 'All' ? '' : slug[0];
 
-    const initialData = await fetchNotes({
-    page: 1,
-    search: "",
-    tag: initialTag,
-  });
+    const initialData = await fetchNotes(1, "" ,initialTag);
 
   return (
     <>
