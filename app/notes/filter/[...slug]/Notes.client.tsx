@@ -13,27 +13,24 @@ import Modal from "@/components/Modal/Modal";
 import NoteForm from "@/components/NoteForm/NoteForm";
 import { Note } from "@/types/note";
 import css from "./NotePage.module.css";
+import { useDebounce } from 'use-debounce';
 
 interface Props {
   initialData: {
     notes: Note[];
     totalPages: number;
   };
-  initialPage: number;
-  initialSearch: string;
   initialTag: string;
 }
 
 const NotesClients = ({
   initialData,
-  initialPage,
-  initialSearch,
   initialTag,
 }: Props) => {
   const [tag, setTag] = useState<string>(initialTag);
-  const [page, setPage] = useState<number>(initialPage);
-  const [search, setSearch] = useState<string>(initialSearch);
-  const [inputValue, setInputValue] = useState<string>(initialSearch);
+  const [page, setPage] = useState<number>(1);
+  const [query, setQuery] = useState<string>("");
+  const [debouncedQuery] = useDebounce(query, 1000);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   useEffect(() => {
@@ -41,17 +38,15 @@ const NotesClients = ({
     setPage(1);
   }, [initialTag]);
 
-    console.log(tag);
-
   const { data, isLoading, isError, isSuccess } = useQuery({
-    queryKey: ["notes", page, search, tag],
-    queryFn: () =>
-      fetchNotes(search.trim() === "" ? { page, tag } : { page, tag, search }),
-    initialData:
-      page === initialPage && search === initialSearch && tag === initialTag
-        ? initialData
-        : undefined,
+    queryKey: ["notes", debouncedQuery, page, tag],
+    queryFn: () => fetchNotes({
+      page,
+      search: debouncedQuery,
+      tag,
+    }),
     placeholderData: keepPreviousData,
+    initialData,
     refetchOnMount: false,
   });
 
@@ -61,20 +56,15 @@ const NotesClients = ({
     if (data.notes.length === 0) {
       toast.error("No notes found for your request.");
     }
-  }, [data, search]);
+  }, [data, query]);
 
   const noteData = data?.notes ?? [];
   const totalPages = data?.totalPages ?? 1;
 
-  const debouncedSearch = useDebouncedCallback((value: string) => {
-    setSearch(value);
-    setPage(1);
-  }, 500);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setInputValue(value);
-    debouncedSearch(value);
+    setQuery(e.target.value);
+    setPage(1);
   };
 
   const openModal = () => {
@@ -89,7 +79,7 @@ const NotesClients = ({
     <div className={css.app}>
       <Toaster position="top-center" />
       <header className={css.toolbar}>
-        <SearchBox value={inputValue} onChange={handleInputChange} />
+        <SearchBox value={query} onChange={handleInputChange} />
         {isSuccess && noteData.length > 0 && (
           <Pagination total={totalPages} onChange={setPage} page={page} />
         )}

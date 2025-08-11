@@ -9,18 +9,18 @@ type Props = {
 
 export default async function Notes({params}:Props){
   const {slug} = await params
-  console.log(slug[0])
 
-  const initialPage = 1;
-  const initialSearch = '';
   const initialTag = slug[0] === 'All' ? '' : slug[0];
 
-  const initialData = await fetchNotes({page: initialPage, search: initialSearch, tag: initialTag})
-    console.log(initialData)
+    const initialData = await fetchNotes({
+    page: 1,
+    search: "",
+    tag: initialTag,
+  });
 
   return (
     <>
-    <NotesClients initialData={initialData} initialPage={initialPage} initialSearch={initialSearch} initialTag={initialTag}/>
+    <NotesClients initialData={initialData} initialTag={initialTag}/>
     </>)   
 }
 
