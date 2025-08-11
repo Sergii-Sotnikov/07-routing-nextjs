@@ -40,7 +40,6 @@ const NotesClients = ({
     queryFn: () => fetchNotes(debouncedQuery ,page, initialTag),
     placeholderData: keepPreviousData,
     initialData,
-    refetchOnMount: false,
   });
 
   useEffect(() => {
