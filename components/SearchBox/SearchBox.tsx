@@ -1,12 +1,13 @@
-import {ChangeEvent} from "react";
+  ``
 import css from "./SearchBox.module.css";
 
 interface SearchBoxProps {
-  onChange(event: ChangeEvent<HTMLInputElement>): void;
+  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   value: string;
 }
 
-export default function SearchBox({ value, onChange }: SearchBoxProps) {
+export default function SearchBox({ onChange, value }: SearchBoxProps) {
+
 
   return (
     <input
@@ -18,3 +19,4 @@ export default function SearchBox({ value, onChange }: SearchBoxProps) {
     />
   );
 }
+

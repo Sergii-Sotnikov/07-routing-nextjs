@@ -30,10 +30,10 @@ const NotesClients = ({
   initialSearch,
   initialTag,
 }: Props) => {
-  const [page, setPage] = useState<number>(initialPage);
   const [tag, setTag] = useState<string>(initialTag);
-  const [query, setQuery] = useState<string>("");
+  const [page, setPage] = useState<number>(initialPage);
   const [search, setSearch] = useState<string>(initialSearch);
+  const [inputValue, setInputValue] = useState<string>(initialSearch);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   useEffect(() => {
@@ -41,12 +41,14 @@ const NotesClients = ({
     setPage(1);
   }, [initialTag]);
 
+    console.log(tag);
+
   const { data, isLoading, isError, isSuccess } = useQuery({
     queryKey: ["notes", page, search, tag],
     queryFn: () =>
-      fetchNotes(search.trim() === "" ? { page, tag } : { page, search, tag }),
+      fetchNotes(search.trim() === "" ? { page, tag } : { page, tag, search }),
     initialData:
-      page === page && search === search && tag === initialTag
+      page === initialPage && search === initialSearch && tag === initialTag
         ? initialData
         : undefined,
     placeholderData: keepPreviousData,
@@ -64,15 +66,15 @@ const NotesClients = ({
   const noteData = data?.notes ?? [];
   const totalPages = data?.totalPages ?? 1;
 
-  const commitSearch = useDebouncedCallback((value: string) => {
-    setSearch(value.trim());
+  const debouncedSearch = useDebouncedCallback((value: string) => {
+    setSearch(value);
     setPage(1);
   }, 500);
 
-  const handleChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setQuery(value);
-    commitSearch(value);
+    setInputValue(value);
+    debouncedSearch(value);
   };
 
   const openModal = () => {
@@ -87,7 +89,7 @@ const NotesClients = ({
     <div className={css.app}>
       <Toaster position="top-center" />
       <header className={css.toolbar}>
-        <SearchBox value={query} onChange={handleChange} />
+        <SearchBox value={inputValue} onChange={handleInputChange} />
         {isSuccess && noteData.length > 0 && (
           <Pagination total={totalPages} onChange={setPage} page={page} />
         )}
