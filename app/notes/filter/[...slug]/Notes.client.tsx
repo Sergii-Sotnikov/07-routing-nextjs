@@ -8,7 +8,6 @@ import NoteList from "@/components/NoteList/NoteList";
 import Loader from "@/components/Loader/Loader";
 import ErrorMessage from "@/components/ErrorMessage/ErrorMessage";
 import Pagination from "@/components/Pagination/Pagination";
-import { useDebouncedCallback } from "use-debounce";
 import Modal from "@/components/Modal/Modal";
 import NoteForm from "@/components/NoteForm/NoteForm";
 import { Note } from "@/types/note";
@@ -27,20 +26,18 @@ const NotesClients = ({
   initialData,
   initialTag,
 }: Props) => {
-  const [tag, setTag] = useState<string>(initialTag);
   const [page, setPage] = useState<number>(1);
   const [query, setQuery] = useState<string>("");
   const [debouncedQuery] = useDebounce(query, 1000);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   useEffect(() => {
-    setTag(initialTag);
     setPage(1);
   }, [initialTag]);
 
   const { data, isLoading, isError, isSuccess } = useQuery({
-    queryKey: ["notes", debouncedQuery, page, tag],
-    queryFn: () => fetchNotes(page, debouncedQuery, tag),
+    queryKey: ["notes", debouncedQuery, page, initialTag],
+    queryFn: () => fetchNotes(debouncedQuery ,page, initialTag),
     placeholderData: keepPreviousData,
     initialData,
     refetchOnMount: false,

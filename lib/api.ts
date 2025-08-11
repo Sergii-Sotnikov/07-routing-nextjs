@@ -14,7 +14,7 @@ interface NoteHttpResponse {
 const myKey = process.env.NEXT_PUBLIC_NOTEHUB_TOKEN;
 
 
-export async function fetchNotes(page: number, search: string ,tag:string): Promise<NoteHttpResponse> {
+export async function fetchNotes(search: string, page: number, tag:string): Promise<NoteHttpResponse> {
   const url = `https://notehub-public.goit.study/api/notes`;
   const options = {
     headers: {
